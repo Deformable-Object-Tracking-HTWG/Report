@@ -93,6 +93,24 @@ The output of SpatialTracker is:
 - 3D trajectory (x, y, z)
 - occlusion probability
 
-## Adaption and implementation of SpatialTracker
+## Adaption and implementation
+
+müssen die nachteil der anderen Modelle noch genannt werden? bzw warum wir sie nicht weiter verfolgen?
 
 As a result of the SpatialTracker providing the best tracking performance (as it can be seen in the videos in the appendix), we only focus on the SpatialTracker in follow-up work. The other models can considered in future research. This section gives an overview of the adaption we made to the already provided code base: [Github SpatialTracker](https://github.com/henry123-boy/SpaTracker).
+
+### Sliding window approach (online version)
+
+Arian?
+
+### Other depth estimator (VideoDepthAnything)
+
+Lukas?
+
+### Segmentation (Segment anything)
+
+Leonie?
+
+### Depth camera?
+
+Yoshua?
