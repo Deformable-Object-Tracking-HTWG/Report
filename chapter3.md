@@ -40,4 +40,22 @@ With this approach the tracking efficiency in the 2D space is evaluated.
 
 ### Runtime evaluation
 
-Jonas?
+Jonas
+
+für jedes objekt, was wir mit der TOF kamera aufgenommen haben:
+
+einmal mit rgb daten
+
+- 5s, 10s, 30s länge
+- 720p, 360p auflösung
+- 20, 50, 100 grid size
+
+einmal mit rgbd daten
+
+- 5s, 10s, 30s länge
+- 720p, 360p auflösung
+- 20, 50, 100 grid size
+
+python file schreiben, das schöne plots macht und die ergebnisse der variation der parameter zeigt (nicht lukas sein skript)
+
+Auswertung hier rein schreiben in text form
