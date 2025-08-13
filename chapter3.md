@@ -10,7 +10,7 @@ Arian, Lukas?
 
 ### 2D tracking efficiency
 
-Yoshua, Leonie?
+Yoshua
 
 With this approach the tracking efficiency in the 2D space is evaluated.
 
@@ -26,7 +26,7 @@ Arian, Lukas?
 
 ### 2D tracking efficiency
 
-Yoshua, Leonie?
+Leonie
 
 2 aruco marker
 3 videos
