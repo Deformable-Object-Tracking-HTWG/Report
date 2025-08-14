@@ -1,6 +1,6 @@
 # Methodology and technical approach
 
-In this section we will provide the theoretical knowledge and describe our progress throughout
+In this section we will provide the theoretical knowledge and describe our progress throughout the two semesters.
 
 ## Previous papers
 
@@ -84,7 +84,7 @@ SpatialTracker is a method that uses the CoTracker approach and extends its 2D p
   <figcaption>Figure: SpatialTracker architecture</figcaption>
 </figure>
 
-SpatialTracker begins by estimating a depth map for each video frame and extracting dense image features, which are used to lift 2D pixels into 3D space to form a point cloud, see (a). As the monocular depth estimator [ZoeDepth](https://arxiv.org/pdf/2302.12288) is used. These 3D points are then projected onto three orthogonal planes to create a compact triplane feature representation that enables efficient feature retrieval (b). An iterative transformer network refines the 3D trajectories of query points across short temporal windows, using extracted features from the triplanes as input (c). As a last step, the model learns a rigidity embedding that groups pixels with similar rigid motion. An As-Rigid-As-Possible (ARAP) constraint is then applied. The ARAP constraint enforces that 3D distances between points with similar rigidity embeddings remain constant over time.
+SpatialTracker begins by estimating a depth map for each video frame and extracting dense image features, which are used to lift 2D pixels into 3D space to form a point cloud, see (a). As the monocular depth estimator (MDE) [ZoeDepth](https://arxiv.org/pdf/2302.12288) is used. These 3D points are then projected onto three orthogonal planes to create a compact triplane feature representation that enables efficient feature retrieval (b). An iterative transformer network refines the 3D trajectories of query points across short temporal windows, using extracted features from the triplanes as input (c). As a last step, the model learns a rigidity embedding that groups pixels with similar rigid motion. An As-Rigid-As-Possible (ARAP) constraint is then applied. The ARAP constraint enforces that 3D distances between points with similar rigidity embeddings remain constant over time.
 
 while a rigidity embedding combined with an As-Rigid-As-Possible (ARAP) constraint enforces locally consistent motion.
 
@@ -111,6 +111,34 @@ Lukas?
 
 Leonie?
 
-### Depth camera?
+## Data generation
 
-Yoshua?
+To be able to evaluate our implementation in the next section, we need a data set. Therefore, we recorded approximately 50 videos with different features:
+
+- Objects
+
+  - Resistance band
+  - Gymnastic ball
+  - Soft ball
+  - Sponge
+
+- Video resolution
+  - 1080p
+  - 720p
+  - 360p
+- Video length
+  - between 5 seconds and 30 seconds
+
+### Ground truth
+
+To obtain reliable ground truth depth information for evaluating the tracking performance, depth images were recorded using a Time-of-Flight (ToF) camera. In our case the Femto Bolt from Orbbec was used, see below.
+
+<figure style="text-align: center;">
+  <img src="femto_bolt.jpg" alt="Femto Bolt" style="width: 50%;">
+  <figcaption>Figure: Femto Bolt depth camera</figcaption>
+</figure>
+
+As the ToF camera outputs only individual frames, both the color stream and the depth stream had to be synchronized and merged to obtain a temporally continuous RGB-D video. This preprocessing is done by a python script (`preprocessing.py`).
+The camera uses an IR-sensor to generate the depth images which can be read out as a .raw file which is then converted in a NumPy array format (.npy) to ensure efficient loading and processing. Additionally, the frames of the video stream are concatenated to obtain a .mp4 video.
+
+During experimentation, the `--rgbd` argument can be set when running the `demo_chunked.py`. It then feeds this pre-recorded depth information directly into the SpatialTracker, bypassing the monocular depth estimation module. This setup enables a direct comparison between the model’s predicted depth and the actual measured depth from the ToF camera, thereby providing a robust basis for assessing the accuracy and reliability of the tracker’s performance on deformable objects.

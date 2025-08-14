@@ -1,6 +1,6 @@
 # Results and Evaluation
 
-In this chapter we want to describe our evaluation
+In this chapter we want to describe our evaluation process. It was a challenge to come up with metrics which can accurately measure the tracking performance. All the metrics used in the three papers of TAPIR, CoTracker and SpatialTracker did not fit really well for our purpose. In the end, we agreed on two metrics which we will describe in the first place. Afterwards, the results of each metric are discussed. In addition, the runtime is evaluated.
 
 ## Metrics
 
