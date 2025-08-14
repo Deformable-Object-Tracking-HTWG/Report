@@ -123,9 +123,11 @@ To be able to evaluate our implementation in the next section, we need a data se
   - Sponge
 
 - Video resolution
+
   - 1080p
   - 720p
   - 360p
+
 - Video length
   - between 5 seconds and 30 seconds
 
