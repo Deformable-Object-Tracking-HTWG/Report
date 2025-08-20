@@ -95,17 +95,33 @@ The output of SpatialTracker is:
 
 ## Adaption and implementation
 
-müssen die nachteil der anderen Modelle noch genannt werden? bzw warum wir sie nicht weiter verfolgen?
-
-As a result of the SpatialTracker providing the best tracking performance (as it can be seen in the videos in the appendix), we only focus on the SpatialTracker in follow-up work. The other models can considered in future research. This section gives an overview of the adaption we made to the already provided code base: [Github SpatialTracker](https://github.com/henry123-boy/SpaTracker).
+As a result of the SpatialTracker providing the best tracking performance (as it can be seen in the videos in the GitHub), we only focus on the SpatialTracker in follow-up work. The other models can considered in future research. This section gives an overview of the adaption we made to the already provided code base: [Github SpatialTracker](https://github.com/henry123-boy/SpaTracker).
 
 ### Sliding window approach (online version)
 
 Arian?
 
-### Other depth estimator (VideoDepthAnything)
+### Video Depth Anything
 
-Lukas?
+This section deals with depth estimation models of the SpatialTracker. To choose between different MDEs one can specify the argument `--depth_model`. The argument gets then forwarded to the `mde.py` file. All functionality for loading the MDE model and generating depth maps is implemented in this file. This script supports various state-of-the-art monocular depth estimation models such as MiDaS, ZoeDepth, Metric3D, Marigold, and Depth-Anything. Depending on the user-defined argument, the corresponding model is loaded in evaluation mode and used to infer depth maps from single RGB images. The inference process produces either relative or metric depth, and in some cases, such as with Depth-Anything, additional alignment steps are performed to calibrate the predicted relative depth to metric scale using a reference model. The script also converts the estimated depth maps into 3D point clouds using the camera intrinsics. The resulting 3D reconstructions are exported as colored point clouds in .ply format, which enables further processing.
+
+By default the ZoeDepth estimator is used. The architecture is shown below.
+
+<figure style="text-align: center;">
+  <img src="zoe_architecture.png" alt="ZoeDepth architecture" style="width: 100%;">
+  <figcaption>Figure: ZoeDepth architecture</figcaption>
+</figure>
+
+ZeoDepth consists of two stages. First, the model is extensively pre-trained on a vast amount of data to understand relative depth, learning which objects in a scene are closer or farther from each other without worrying about specific units of measurement. Second, the model is then fine-tuned on smaller datasets that contain ground truth metric depth (exact distances in meters). Instead of simply learning a single, precise value, ZoeDepth uses a unique **metric bins module** that estimates a range of possible depth values for each pixel. In the end, ZoeDepth outputs metric depth maps.
+
+For our work we extended the SpatialTracker by another depth estimator. We were recommended Video Depth Anything: Consistent Depth Estimation for Super-Long Videos ([Paper VideoDepthAnything](https://arxiv.org/pdf/2501.12375)) by Chen et al. The Video Depth Anything depth estimator can be enabled by setting the argument `--depth_model` to "Todo: argument name" in the file `chunked_demo.py`.
+
+Video Depth Anything is build upon the strengths of Depth Anything to handle long-duration video sequences with high quality and temporal consistency. The authors introduce a lightweight **spatiotemporal head** on top of the Depth Anything V2 encoder that allows the network to share information across consecutive frames. Instead of relying on optical flow or camera pose (absolute depth values), they introduce a simple temporal consistency loss that encourages smooth changes in depth across frames. For long videos, the method processes clips segment by segment. The figure below illustrates the processing pipeline.
+
+<figure style="text-align: center;">
+  <img src="videoDepthAny_architecture.png" alt="Video Depth Anything architecture" style="width: 100%;">
+  <figcaption>Figure: Video Depth Anything architecture</figcaption>
+</figure>
 
 ### Segmentation (Segment anything)
 
