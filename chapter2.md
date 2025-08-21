@@ -44,6 +44,8 @@ As the only option being left over is the SpatialTracker.This is the one we focu
 
 ### TAPIR
 
+**TODO: vor und nachteile Tapir?**
+
 TAPIR is a deep neural network model designed for the task of **Tracking Any Point** (TAP). Its main goal is to accurately follow a specific point of interest throughout a 2D video sequence, even if that point is on a deformable object, becomes occluded, or changes its appearance. It works in two steps: per-frame **initialization** and **iterative refinement**. The figure below shows the architecture of TAPIR.
 
 <figure style="text-align: center;">
@@ -61,6 +63,8 @@ In the second stage, the **iterative refinement**, which can be seen on the uppe
 
 ### CoTracker
 
+**TODO: vor und nachteile CoTracker?**
+
 CoTracker is a paper that introduces another approach to point tracking in 2D videos. The core idea is that instead of tracking each point independently, it is more effective to track many points jointly, taking into account their dependencies and correlations. In the figure below the architecture is shown.
 
 <figure style="text-align: center;">
@@ -76,6 +80,8 @@ The output of CoTracker is:
 - occlusion probability
 
 ### SpatialTracker
+
+**TODO: vor und nachteile SpaTracker?**
 
 SpatialTracker is a method that uses the CoTracker approach and extends its 2D point tracking to the 3D domain. As input data it uses either 2D videos (RGB) or videos with depth information (RGBD). The architecture can be found below.
 
@@ -114,7 +120,7 @@ By default the ZoeDepth estimator is used. The architecture is shown below.
 
 ZeoDepth consists of two stages. First, the model is extensively pre-trained on a vast amount of data to understand relative depth, learning which objects in a scene are closer or farther from each other without worrying about specific units of measurement. Second, the model is then fine-tuned on smaller datasets that contain ground truth metric depth (exact distances in meters). Instead of simply learning a single, precise value, ZoeDepth uses a unique **metric bins module** that estimates a range of possible depth values for each pixel. In the end, ZoeDepth outputs metric depth maps.
 
-For our work we extended the SpatialTracker by another depth estimator. We were recommended Video Depth Anything: Consistent Depth Estimation for Super-Long Videos ([Paper VideoDepthAnything](https://arxiv.org/pdf/2501.12375)) by Chen et al. The Video Depth Anything depth estimator can be enabled by setting the argument `--depth_model` to "Todo: argument name" in the file `chunked_demo.py`.
+For our work we extended the SpatialTracker by another depth estimator. We were recommended Video Depth Anything: Consistent Depth Estimation for Super-Long Videos ([Paper VideoDepthAnything](https://arxiv.org/pdf/2501.12375)) by Chen et al. The Video Depth Anything depth estimator can be enabled by setting the argument `--depth_model` to **"Todo: argument name"** in the file `chunked_demo.py`.
 
 Video Depth Anything is build upon the strengths of Depth Anything to handle long-duration video sequences with high quality and temporal consistency. The authors introduce a lightweight **spatiotemporal head** on top of the Depth Anything V2 encoder that allows the network to share information across consecutive frames. Instead of relying on optical flow or camera pose (absolute depth values), they introduce a simple temporal consistency loss that encourages smooth changes in depth across frames. For long videos, the method processes clips segment by segment. The figure below illustrates the processing pipeline.
 
@@ -126,6 +132,8 @@ Video Depth Anything is build upon the strengths of Depth Anything to handle lon
 ### Segmentation (Segment anything)
 
 Leonie?
+
+**sam pipeline ins main file**
 
 ## Data generation
 

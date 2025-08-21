@@ -4,9 +4,9 @@ In this chapter we want to describe our evaluation process. It was a challenge t
 
 ## Metrics
 
-### Comparison between TOF ground truth and tracker
+### Runtime evaluation
 
-Arian, Lukas?
+Jonas?
 
 ### 2D tracking efficiency
 
@@ -40,27 +40,11 @@ In the next stage, the same video was fed into the SpatialTracker. The points se
 
 In the python script `evaluateTracking.py`, both stored files are loaded. The Euclidean distance between the pixel coordinates obtained from the SpatialTracker and those from the ArUco marker detection is then computed for each frame. The tracking evaluation produces several quantitative metrics, namely the mean error, the root mean square error (RMSE), and the standard deviation. A larger distance indicates poorer tracking performance, whereas a smaller distance corresponds to better accuracy.
 
-### Runtime evaluation
-
-Jonas?
-
-## Results
-
 ### Comparison between TOF ground truth and tracker
 
 Arian, Lukas?
 
-### 2D tracking efficiency
-
-Leonie
-
-2 aruco marker
-3 videos
-1: 1 in die mitte, der andere rechts (nur bewegen)
-2: 1 in die mitte, der andere rechts (stretchen)
-3: 1 in die mitte, der andere rechts (verschwindet)
-
-nur wenig punkte, man kann nicht auf die gesamtheit schließen
+## Results
 
 ### Runtime evaluation
 
@@ -80,6 +64,22 @@ einmal mit rgbd daten
 - 720p, 360p auflösung
 - 20, 50, 100 grid size
 
-python file schreiben, das schöne plots macht und die ergebnisse der variation der parameter zeigt (nicht lukas sein skript)
+python file schreiben, das schöne plots macht und die ergebnisse der variation der parameter zeigt (**nicht lukas sein skript**)
 
 Auswertung hier rein schreiben in text form
+
+### 2D tracking efficiency
+
+Leonie
+
+2 aruco marker
+3 videos
+1: 1 in die mitte, der andere rechts (nur bewegen)
+2: 1 in die mitte, der andere rechts (stretchen)
+3: 1 in die mitte, der andere rechts (verschwindet)
+
+nur wenig punkte, man kann nicht auf die gesamtheit schließen
+
+### Comparison between TOF ground truth and tracker
+
+Arian, Lukas?
