@@ -99,6 +99,9 @@ The output of SpatialTracker is:
 - 3D trajectory (x, y, z)
 - occlusion probability
 
+#### Pros and Cons
+By lifting pixels to 3D (monocular depth → triplanes) and enforcing a rigidity embedding with an ARAP prior, it is robust to occlusions and out-of-plane motion and achieves strong results on long-range tracking benchmarks. Its accuracy depends on the quality/consistency of the depth input, and the pipeline incurs additional compute/memory from depth inference, triplane feature construction, and transformer updates compared to purely 2D trackers.
+
 ## Adaption and implementation
 
 As a result of the SpatialTracker providing the best tracking performance (as it can be seen in the videos in the GitHub), we only focus on the SpatialTracker in follow-up work. The other models can considered in future research. This section gives an overview of the adaption we made to the already provided code base: [Github SpatialTracker](https://github.com/henry123-boy/SpaTracker).
@@ -121,7 +124,7 @@ In the first processed segment, query points are initialised on a regular grid r
 
 The script supports both monocular and RGB-D inputs. By default, monocular depth is computed on demand for the frames inside each model call. When `--rgbd` is set, per-frame depth maps (pre-aligned to the RGB preprocessing) are injected directly, bypassing the MDE. This path is used for our ToF-based comparisons.
 
-**Preprocessing and outputs.** We optionally sub-sample frames (`--fps`) and apply crop/downsample operations (`--crop`, `--crop_factor`, `--downsample`) before inference; all trajectories are mapped back to the overlay/original resolution when saving. Each run exports (i) an MP4 with overlays and (ii) a NumPy bundle with trajectories, visibility flags, frame indices, spatial metadata, and the full CLI configuration to ensure reproducibility.
+**Preprocessing and outputs.** We optionally sub-sample frames (`--fps`) and apply crop/downsample operations (`--crop`, `--crop_factor`, `--downsample`) before inference; all trajectories are mapped back to the overlay/original resolution when saving. Each run exports an MP4 with overlays and a NumPy bundle with trajectories, visibility flags, frame indices, spatial metadata, and the full CLI configuration to ensure reproducibility.
 
 **Key arguments**
 
