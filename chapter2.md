@@ -81,8 +81,6 @@ The output of CoTracker is:
 
 ### SpatialTracker
 
-**TODO: vor und nachteile SpaTracker?**
-
 SpatialTracker is a method that uses the CoTracker approach and extends its 2D point tracking to the 3D domain. As input data it uses either 2D videos (RGB) or videos with depth information (RGBD). The architecture can be found below.
 
 <figure style="text-align: center;">
