@@ -108,9 +108,10 @@ As a result of the SpatialTracker providing the best tracking performance (as it
 To make SpatialTracker operate reliably on long and/or high-resolution sequences, we extended the original `demo.py` into a chunked online variant (`chunked_demo.py`). Instead of processing the entire clip at once, the video is split into temporal chunks of length `--chunk_size`. For each chunk we prepend a small overlap equal to half of the model’s sequence length (`--s_length_model / 2`). The model is run on *overlap + chunk*, but only the predictions belonging to the non-overlap part are retained. This keeps peak memory usage approximately constant while preserving sufficient temporal context at chunk boundaries.
 
 <figure style="text-align: center;">
-  <img src="spatracker_architecture.png" alt="SpatialTracker architecture" style="width: 70%;">
-  <figcaption>Figure: SpatialTracker architecture</figcaption>
+  <img src="sliding_window.png" alt="Online sliding-window processing" style="width: 70%;">
+  <figcaption>Figure: Online sliding-window processing</figcaption>
 </figure>
+
 
 **Initialisation** 
 
