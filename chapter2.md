@@ -117,13 +117,13 @@ To make SpatialTracker operate reliably on long and/or high-resolution sequences
 
 In the first processed segment, query points are initialised on a regular grid restricted to an optional segmentation mask (`--grid_size`, `--mask_name`). For subsequent segments we do not re-sample; instead, the last predicted positions from the previous segment are used as the queries at the new segment start. In practice this yields stable identities and avoids repeated mask processing. If no valid points are available (e.g., prolonged occlusion), the pipeline proceeds with empty/dense queries until tracks re-emerge.
 
-**Depth handling.** 
+**Depth handling** 
 
 The script supports both monocular and RGB-D inputs. By default, monocular depth is computed on demand for the frames inside each model call. When `--rgbd` is set, per-frame depth maps (pre-aligned to the RGB preprocessing) are injected directly, bypassing the MDE. This path is used for our ToF-based comparisons.
 
 **Preprocessing and outputs.** We optionally sub-sample frames (`--fps`) and apply crop/downsample operations (`--crop`, `--crop_factor`, `--downsample`) before inference; all trajectories are mapped back to the overlay/original resolution when saving. Each run exports (i) an MP4 with overlays and (ii) a NumPy bundle with trajectories, visibility flags, frame indices, spatial metadata, and the full CLI configuration to ensure reproducibility.
 
-**Key arguments.**
+**Key arguments**
 
 * `--chunk_size`: frames per output segment.
 * `--s_length_model`: model window; overlap is half of this value.
@@ -132,7 +132,7 @@ The script supports both monocular and RGB-D inputs. By default, monocular depth
 * `--fps`, `--downsample`, `--crop`, `--crop_factor`: temporal/spatial preprocessing.
 * Visualisation controls: `--point_size`, `--len_track`, `--fps_vis`, `--backward`, `--vis_support`.
 
-**Example.**
+**Example**
 
 ```bash
 python chunked_demo.py \
