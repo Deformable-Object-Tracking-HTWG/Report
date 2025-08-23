@@ -40,9 +40,44 @@ In the next stage, the same video was fed into the SpatialTracker. The points se
 
 In the python script `evaluateTracking.py`, both stored files are loaded. The Euclidean distance between the pixel coordinates obtained from the SpatialTracker and those from the ArUco marker detection is then computed for each frame. The tracking evaluation produces several quantitative metrics, namely the mean error, the root mean square error (RMSE), and the standard deviation. A larger distance indicates poorer tracking performance, whereas a smaller distance corresponds to better accuracy.
 
+
 ### Comparison between TOF ground truth and tracker
 
-Arian, Lukas?
+We implemented an end-to-end pipeline (`eval_pipeline.py`) to compare SpatialTracker outputs against **Time-of-Flight (ToF)** depth frames. Given a clip slug, the pipeline downloads and re-encodes the RGB video, derives a first-frame object mask (from the project’s segmentation), runs the chunked online variant of SpatialTracker, fetches the corresponding ToF `.npy` frames, performs a depth-aware analysis, and generates a ToF overlay video with track visualization.
+
+#### Coordinate mapping (processed → ToF)
+
+Let \$(x\_p,y\_p)\$ be tracker coordinates at the processed resolution \$(W\_{\text{proc}},H\_{\text{proc}})\$, and \$(W\_{\text{tof}},H\_{\text{tof}})\$ the ToF frame size. We map to ToF pixel indices by
+
+$$
+s_x=\frac{W_{\text{tof}}}{W_{\text{proc}}},\quad s_y=\frac{H_{\text{tof}}}{H_{\text{proc}}},\qquad
+(x_{\text{tof}},y_{\text{tof}})=\big(\,\mathrm{round}(s_x\,x_p),\;\mathrm{round}(s_y\,y_p)\big).
+$$
+
+#### Mask warp (geometric prior)
+
+The first-frame binary mask is used only as a **geometric prior**. A homography \$H\$ is estimated from points that started inside the mask and are visible at \$t=0\$ and \$t\$:
+
+```math
+\begin{bmatrix}u\\v\\1\end{bmatrix}\sim
+H\begin{bmatrix}x\\y\\1\end{bmatrix},\qquad
+H=\text{RANSAC}\big(\{(x_0,y_0)\leftrightarrow(x_t,y_t)\}\big).
+```
+
+The mask is warped to frame \$t\$ and slightly dilated to tolerate small warp errors. Membership in the warped mask counts as a positive vote.
+
+#### Local ToF depth and object depth band
+
+For a projected point \$(x\_{\text{tof}},y\_{\text{tof}})\$ we take a **robust local depth** as the median in a small window, ignoring zeros (no return).
+
+To decide whether a tracked point is consistent with the ToF signal, we maintain an **object depth band** per frame. The band is estimated from ToF samples and smoothed over time using an exponential moving average. In the overlay path, depths are sampled inside the warped mask; in the metrics path, samples are taken at the current visible track locations (mask-agnostic). The band half-width uses the larger of a fixed minimum tolerance (≈6 cm) and a term proportional to the median absolute deviation (≈2.5×MAD). A point is accepted by depth if its local ToF median lies inside the current band.
+
+#### Decision rule and outputs
+
+Geometry and depth are combined: a point counts as correct if it is **inside the warped mask** or **passes the depth test**. A short majority vote over recent frames reduces flicker from transient sensor dropouts. In the overlay, accepted samples are drawn **green**, rejected **red**, and optionally **yellow** if the tracker reports invisibility while ToF has no local return.
+
+**EVALUATIONSERGEBNISSE Lukas**
+
 
 ## Results
 
