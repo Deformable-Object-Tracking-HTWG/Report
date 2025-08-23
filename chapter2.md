@@ -44,8 +44,6 @@ As the only option being left over is the SpatialTracker.This is the one we focu
 
 ### TAPIR
 
-**TODO: vor und nachteile Tapir?**
-
 TAPIR is a deep neural network model designed for the task of **Tracking Any Point** (TAP). Its main goal is to accurately follow a specific point of interest throughout a 2D video sequence, even if that point is on a deformable object, becomes occluded, or changes its appearance. It works in two steps: per-frame **initialization** and **iterative refinement**. The figure below shows the architecture of TAPIR.
 
 <figure style="text-align: center;">
@@ -61,9 +59,10 @@ The lower part of the figure shows the per-frame **per-frame initialization**. I
 
 In the second stage, the **iterative refinement**, which can be seen on the upper part of the figure, the above mentioned initial guesses are improved. For each potential position found during the initialization phase, the model defines a local neighborhood window around it. This window acts as a search area for refining the point's exact location. The refinement itself is achieved by comparing the visual features within this neighborhood to the features of the original query point. This comparison generates score maps indicate the similarity between the query point's features and every pixel within the neighborhood window. The highest-scoring pixel in this map represents the most probable refined position for the tracked point in that specific frame. This process is executed iteratively, allowing the model to correct small errors and ensure that the final trajectory is smooth and consistent over time.
 
-### CoTracker
+#### Pros and Cons 
+**TODO Leonie**
 
-**TODO: vor und nachteile CoTracker?**
+### CoTracker
 
 CoTracker is a paper that introduces another approach to point tracking in 2D videos. The core idea is that instead of tracking each point independently, it is more effective to track many points jointly, taking into account their dependencies and correlations. In the figure below the architecture is shown.
 
@@ -78,6 +77,9 @@ The output of CoTracker is:
 
 - Trajectory (x, y) over all frames
 - occlusion probability
+
+#### Pros and Cons
+By jointly tracking many points with a Transformer, CoTracker exploits inter-point correlations, which improves robustness to occlusions and even when points leave the field of view; it also scales to tens of thousands of points on a single GPU. Its main drawbacks are sensitivity to domain gaps—trained largely on synthetic data, it can mis-handle reflections/shadows—and, by design, joint attention over many points entails higher compute/memory than independent per-point trackers. 
 
 ### SpatialTracker
 
