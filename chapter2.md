@@ -105,7 +105,46 @@ As a result of the SpatialTracker providing the best tracking performance (as it
 
 ### Sliding window approach (online version)
 
-Arian?
+To make SpatialTracker operate reliably on long and/or high-resolution sequences, we extended the original `demo.py` into a chunked online variant (`chunked_demo.py`). Instead of processing the entire clip at once, the video is split into temporal chunks of length `--chunk_size`. For each chunk we prepend a small overlap equal to half of the model’s sequence length (`--s_length_model / 2`). The model is run on *overlap + chunk*, but only the predictions belonging to the non-overlap part are retained. This keeps peak memory usage approximately constant while preserving sufficient temporal context at chunk boundaries.
+
+<figure style="text-align: center;">
+  <img src="spatracker_architecture.png" alt="SpatialTracker architecture" style="width: 70%;">
+  <figcaption>Figure: SpatialTracker architecture</figcaption>
+</figure>
+
+**Initialisation** 
+
+In the first processed segment, query points are initialised on a regular grid restricted to an optional segmentation mask (`--grid_size`, `--mask_name`). For subsequent segments we do not re-sample; instead, the last predicted positions from the previous segment are used as the queries at the new segment start. In practice this yields stable identities and avoids repeated mask processing. If no valid points are available (e.g., prolonged occlusion), the pipeline proceeds with empty/dense queries until tracks re-emerge.
+
+**Depth handling.** 
+
+The script supports both monocular and RGB-D inputs. By default, monocular depth is computed on demand for the frames inside each model call. When `--rgbd` is set, per-frame depth maps (pre-aligned to the RGB preprocessing) are injected directly, bypassing the MDE. This path is used for our ToF-based comparisons.
+
+**Preprocessing and outputs.** We optionally sub-sample frames (`--fps`) and apply crop/downsample operations (`--crop`, `--crop_factor`, `--downsample`) before inference; all trajectories are mapped back to the overlay/original resolution when saving. Each run exports (i) an MP4 with overlays and (ii) a NumPy bundle with trajectories, visibility flags, frame indices, spatial metadata, and the full CLI configuration to ensure reproducibility.
+
+**Key arguments.**
+
+* `--chunk_size`: frames per output segment.
+* `--s_length_model`: model window; overlap is half of this value.
+* `--grid_size`, `--mask_name`, `--query_frame`: first-segment initialisation.
+* `--rgbd`: use external depth instead of monocular depth.
+* `--fps`, `--downsample`, `--crop`, `--crop_factor`: temporal/spatial preprocessing.
+* Visualisation controls: `--point_size`, `--len_track`, `--fps_vis`, `--backward`, `--vis_support`.
+
+**Example.**
+
+```bash
+python chunked_demo.py \
+  --root ./assets \
+  --vid_name Gymnastik_1_5s \
+  --mask_name Gymnastik_1_5s_mask.png \
+  --grid_size 50 \
+  --chunk_size 30 \
+  --s_length_model 12 \
+  --fps 1.0 \
+  --downsample 0.8 \
+  --rgbd
+```
 
 ### Video Depth Anything
 
