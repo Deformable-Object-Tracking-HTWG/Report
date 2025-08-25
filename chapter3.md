@@ -6,7 +6,44 @@ In this chapter we want to describe our evaluation process. It was a challenge t
 
 ### Runtime evaluation
 
-Jonas?
+For evaluating runtime performance, a systematic approach was designed to capture the computational load of the tracking process under different conditions. Both RGB and RGB-D data were considered to analyze differences in resource usage and efficiency.
+
+Experimental Setup
+For each object recorded with the ToF camera, videos with varying length and resolution were used:
+
+Video durations: 5 s, 10 s, 30 s
+
+Resolutions: 720p, 360p
+
+Grid sizes for SpatialTracker: 20, 50, 100
+
+Measurements were performed once with pure RGB videos and once with RGB-D videos to account for the potential additional computational load from depth data.
+
+Data Collection
+The runtime was measured using the Performance_Metrics class, which continuously records:
+
+CPU usage (%)
+
+RAM usage (percentage and absolute GB)
+
+Disk I/O (MB read and written)
+
+GPU utilization (%) and memory usage (if available)
+
+The metrics were collected throughout the entire tracking run. Optionally, py-spy can be used for periodic CPU profiling to identify performance bottlenecks in the Python code.
+
+Analysis Approach
+After completing the tracking runs, the collected metrics were used to generate visualizations illustrating:
+
+Temporal evolution of system resources: CPU, RAM, disk, and GPU usage over time.
+
+Comparison across grid sizes: Efficiency and resource peaks for 20, 50, and 100 tracking points.
+
+Comparison across resolutions: Effect of 720p vs. 360p on runtime and resource usage.
+
+Comparison between RGB and RGB-D data: Additional computational load introduced by depth information.
+
+The evaluation results are presented as clear plots, enabling direct inspection of the relationships between resolution, grid size, data type (RGB vs. RGB-D), and resource consumption.
 
 ### 2D tracking efficiency
 
