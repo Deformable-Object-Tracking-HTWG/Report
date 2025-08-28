@@ -120,15 +120,48 @@ Geometry and depth are combined: a point counts as correct if it is **inside the
 
 ### Runtime evaluation
 
-Jonas
+1. Execution Time
+The execution time increases with both video length and resolution.
+For 360p, the runtime for 30-second videos is approximately 402–313 seconds, depending on grid size.
+At 720p, the runtime for the same 30-second videos increases to 424–331 seconds.
+This shows that 720p consistently takes about 5–10% longer than 360p, regardless of grid size.
+The increase in execution time is due to higher computational requirements at higher resolution, even though GPU utilization is already saturated.
 
-für jedes objekt, was wir mit der TOF kamera aufgenommen haben:
+2. GPU Utilization and Memory
+GPU utilization remains very high, averaging between 70% and 83%, and regularly peaking at 100%.
+This indicates that the GPU is the main performance bottleneck during all runs.
+GPU memory usage also scales with video length and resolution.
+For 360p runs, peak GPU memory usage reaches 22.8 GB, while at 720p it increases slightly to 23.3 GB.
+This suggests that higher resolution does not drastically increase GPU memory consumption, but does prolong GPU processing.
 
-einmal mit rgb daten
+3. CPU Usage
+The CPU shows only moderate activity throughout all tests.
+Average CPU usage remains between 7% and 9%, with peak usage occasionally reaching 50–65%.
+This demonstrates that the CPU is not a limiting factor in the pipeline.
+The workload is dominated by the GPU, and CPU overhead is relatively stable across all configurations.
 
-- 5s, 10s, 30s länge
-- 720p, 360p auflösung
-- 20, 50, 100 grid size
+4. System Memory (RAM)
+System memory usage differs significantly between 360p and 720p.
+For 360p runs, RAM usage peaks between 8 GB and 22 GB.
+At 720p, RAM demand increases sharply, with peak usage reaching 45 GB during 30-second runs.
+This means that 720p resolution requires roughly twice as much RAM as 360p.
+Such high memory usage may exceed the capacity of typical workstations and therefore reduces scalability for longer 720p sequences.
+
+5. Disk I/O
+Disk input and output activity remains relatively low compared to other resource demands.
+Data written to disk increases with video length, ranging from 35 MB for 5-second runs to about 200 MB for 30-second runs.
+Since both read and write operations remain small compared to modern disk bandwidth, disk I/O is not a performance bottleneck in any of the tested scenarios.
+
+Key Findings
+Execution time at 720p is consistently longer than at 360p, by roughly 5–10%.
+
+The GPU is always fully utilized, making it the primary performance bottleneck.
+
+The CPU does not limit performance, since its average load is low.
+
+System RAM demand nearly doubles at 720p, which significantly limits scalability for longer videos.
+
+Disk I/O has no negative impact on performance.
 
 einmal mit rgbd daten
 
@@ -136,9 +169,7 @@ einmal mit rgbd daten
 - 720p, 360p auflösung
 - 20, 50, 100 grid size
 
-python file schreiben, das schöne plots macht und die ergebnisse der variation der parameter zeigt (**nicht lukas sein skript**)
-
-Auswertung hier rein schreiben in text form
+python file schreiben, das schöne plots macht und die ergebnisse der variation der parameter zeigt
 
 ### 2D tracking efficiency
 
