@@ -167,6 +167,8 @@ The dataset provides a comparison between RGBD (color + depth) and RGB-only vide
 #### Execution Time
 RGBD processing consistently requires more execution time than RGB-only processing. On average, RGBD runs take between 10 and 20 percent longer, depending on the resolution and grid size. This additional overhead can be attributed to the depth channel, which increases the computational workload.
 
+[](images/ExecutionRGBD.PNG)
+
 #### CPU Utilization
 The average CPU usage is very similar between RGBD and RGB, with differences usually within half a percent. Peak CPU usage is sometimes slightly higher for RGBD, but the difference is not dramatic. These results suggest that the CPU is not the main bottleneck when comparing RGBD and RGB processing. Both modes scale in a similar way with respect to CPU load.
 
@@ -178,6 +180,8 @@ Disk reads are negligible for both RGBD and RGB. However, disk writes are consis
 
 #### GPU Utilization
 RGBD also places a heavier load on the GPU than RGB. The average GPU utilization is consistently higher for RGBD, usually by one to three percent. In both modes, the GPU regularly reaches 100 percent peak utilization, which indicates that the GPU is the primary performance bottleneck. GPU memory usage is also higher for RGBD, with differences again in the range of 200 to 500 MB, due to the storage requirements of the depth channel.
+
+![](images/ressourcesRGBD.PNG)
 
 #### Scaling Effects
 Increases in resolution from 360p to 720p lead to longer execution times and higher GPU memory consumption in both RGBD and RGB modes. However, the performance gap between them remains stable, meaning that the relative overhead of depth processing does not grow disproportionately with resolution. Similarly, increasing the grid size from 20 to 100 results in proportional scaling for both RGBD and RGB. Changes in duration, from 5 seconds to 30 seconds, primarily extend execution time in a linear fashion, with RGBD always requiring more time than RGB.
