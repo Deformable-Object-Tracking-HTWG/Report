@@ -167,7 +167,7 @@ The dataset provides a comparison between RGBD (color + depth) and RGB-only vide
 #### Execution Time
 RGBD processing consistently requires more execution time than RGB-only processing. On average, RGBD runs take between 10 and 20 percent longer, depending on the resolution and grid size. This additional overhead can be attributed to the depth channel, which increases the computational workload.
 
-[](images/ExecutionRGBD.PNG)
+![](images/ExecutionRGBD.PNG)
 
 #### CPU Utilization
 The average CPU usage is very similar between RGBD and RGB, with differences usually within half a percent. Peak CPU usage is sometimes slightly higher for RGBD, but the difference is not dramatic. These results suggest that the CPU is not the main bottleneck when comparing RGBD and RGB processing. Both modes scale in a similar way with respect to CPU load.
