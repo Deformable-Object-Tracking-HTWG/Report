@@ -112,7 +112,7 @@ Geometry and depth are combined: a point counts as correct if it is **inside the
 
 ### Runtime evaluation
 
-#### 1. Execution Time
+#### Execution Time
 The execution time increases with both video length and resolution.
 For 360p, the runtime for 30-second videos is approximately 402–313 seconds, depending on grid size.
 At 720p, the runtime for the same 30-second videos increases to 424–331 seconds.
@@ -121,14 +121,14 @@ The increase in execution time is due to higher computational requirements at hi
 
 ![](images/Execution.PNG)
 
-#### 2. GPU Utilization and Memory
+#### GPU Utilization and Memory
 GPU utilization remains very high, averaging between 70% and 83%, and regularly peaking at 100%.
 This indicates that the GPU is the main performance bottleneck during all runs.
 GPU memory usage also scales with video length and resolution.
 For 360p runs, peak GPU memory usage reaches 22.8 GB, while at 720p it increases slightly to 23.3 GB.
 This suggests that higher resolution does not drastically increase GPU memory consumption, but does prolong GPU processing.
 
-#### 3. CPU Usage
+#### CPU Usage
 The CPU shows only moderate activity throughout all tests.
 Average CPU usage remains between 7% and 9%, with peak usage occasionally reaching 50–65%.
 This demonstrates that the CPU is not a limiting factor in the pipeline.
@@ -136,21 +136,21 @@ The workload is dominated by the GPU, and CPU overhead is relatively stable acro
 
 ![](images/ressources.PNG)
 
-#### 4. System Memory (RAM)
+#### System Memory (RAM)
 System memory usage differs significantly between 360p and 720p.
 For 360p runs, RAM usage peaks between 8 GB and 22 GB.
 At 720p, RAM demand increases sharply, with peak usage reaching 45 GB during 30-second runs.
 This means that 720p resolution requires roughly twice as much RAM as 360p.
 Such high memory usage may exceed the capacity of typical workstations and therefore reduces scalability for longer 720p sequences.
 
-#### 5. Disk I/O
+#### Disk I/O
 Disk input and output activity remains relatively low compared to other resource demands.
 Data written to disk increases with video length, ranging from 35 MB for 5-second runs to about 200 MB for 30-second runs.
 Since both read and write operations remain small compared to modern disk bandwidth, disk I/O is not a performance bottleneck in any of the tested scenarios.
 
 ![](images/Table.PNG)
 
-#### 6. Key Findings
+#### Key Findings
 Execution time at 720p is consistently longer than at 360p, by roughly 5–10%.
 
 The GPU is always fully utilized, making it the primary performance bottleneck.
@@ -161,13 +161,43 @@ System RAM demand nearly doubles at 720p, which significantly limits scalability
 
 Disk I/O has no negative impact on performance.
 
-einmal mit rgbd daten
+### Analysis of RGB vs. RGBD Processing Performance
+The dataset provides a comparison between RGBD (color + depth) and RGB-only video processing across different durations, grid sizes, and resolutions. The following sections summarize the main differences observed between the two modes.
 
-- 5s, 10s, 30s länge
-- 720p, 360p auflösung
-- 20, 50, 100 grid size
+#### Execution Time
+RGBD processing consistently requires more execution time than RGB-only processing. On average, RGBD runs take between 10 and 20 percent longer, depending on the resolution and grid size. This additional overhead can be attributed to the depth channel, which increases the computational workload.
 
-python file schreiben, das schöne plots macht und die ergebnisse der variation der parameter zeigt
+#### CPU Utilization
+The average CPU usage is very similar between RGBD and RGB, with differences usually within half a percent. Peak CPU usage is sometimes slightly higher for RGBD, but the difference is not dramatic. These results suggest that the CPU is not the main bottleneck when comparing RGBD and RGB processing. Both modes scale in a similar way with respect to CPU load.
+
+#### Memory Consumption
+RGBD processing uses consistently more memory than RGB. The difference is typically between 200 and 500 MB on average. Peak memory usage also shows a similar gap, which reinforces the conclusion that handling depth data increases the memory footprint. For example, in the 10-second, 20-grid, 360p run, RGBD required about 10.6 GB, whereas RGB required about 10.5 GB. The memory gap becomes more noticeable at higher resolutions.
+
+#### Disk I/O
+Disk reads are negligible for both RGBD and RGB. However, disk writes are consistently higher for RGBD. The difference is often between 20 and 40 MB more per run, which reflects the additional output data generated when depth information is included.
+
+#### GPU Utilization
+RGBD also places a heavier load on the GPU than RGB. The average GPU utilization is consistently higher for RGBD, usually by one to three percent. In both modes, the GPU regularly reaches 100 percent peak utilization, which indicates that the GPU is the primary performance bottleneck. GPU memory usage is also higher for RGBD, with differences again in the range of 200 to 500 MB, due to the storage requirements of the depth channel.
+
+#### Scaling Effects
+Increases in resolution from 360p to 720p lead to longer execution times and higher GPU memory consumption in both RGBD and RGB modes. However, the performance gap between them remains stable, meaning that the relative overhead of depth processing does not grow disproportionately with resolution. Similarly, increasing the grid size from 20 to 100 results in proportional scaling for both RGBD and RGB. Changes in duration, from 5 seconds to 30 seconds, primarily extend execution time in a linear fashion, with RGBD always requiring more time than RGB.
+
+#### Effect of Video Length
+Video length has a strong and predictable influence on execution time. Longer videos require proportionally more processing time, resulting in a roughly linear increase. For example, a 30-second video requires approximately three times as much time as a 10-second video under the same conditions.
+
+The key point is that the relative difference between RGBD and RGB remains stable across all durations. Whether the video is 5 seconds or 30 seconds, RGBD consistently requires more time and resources, but the overhead is always in the same range (10–20 percent more execution time and slightly higher memory/GPU usage).
+
+#### Effect of Grid Size
+Grid size also significantly impacts performance. Increasing the grid size from 20 to 100 results in longer execution times and higher memory requirements for both RGBD and RGB. The more complex the grid, the more computational work is required.
+
+However, just as with video length, the relative overhead of RGBD compared to RGB does not change. Both modes scale proportionally with grid size, and RGBD consistently consumes more time and resources by the same percentage margin.
+
+#### Conclusions
+RGBD processing is uniformly more resource-intensive than RGB processing. It requires longer execution times, more memory, larger disk writes, and slightly higher GPU utilization. The GPU is the main bottleneck, as it often reaches maximum utilization in both modes.
+
+The experiments confirm that both video length and grid size strongly influence absolute performance: longer videos and larger grids increase processing times and resource consumption. Nevertheless, the relative performance gap between RGBD and RGB remains stable, making the overhead of including depth data both consistent and predictable.
+
+In practical terms, RGBD processing provides richer information at a stable cost: approximately 10–20 percent longer processing times, 200–500 MB higher memory usage, increased disk writes, and slightly higher GPU load compared to RGB-only processing, regardless of video length or grid size.
 
 ### 2D tracking efficiency
 
