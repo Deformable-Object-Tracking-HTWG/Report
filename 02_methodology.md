@@ -46,10 +46,7 @@ As the only option being left over is the SpatialTracker.This is the one we focu
 
 TAPIR is a deep neural network model designed for the task of **Tracking Any Point** (TAP). Its main goal is to accurately follow a specific point of interest throughout a 2D video sequence, even if that point is on a deformable object, becomes occluded, or changes its appearance. It works in two steps: per-frame **initialization** and **iterative refinement**. The figure below shows the architecture of TAPIR.
 
-<figure style="text-align: center;">
-  <img src="tapir_architecture.png" alt="TAPIR architecture" style="width: 40%;">
-  <figcaption>Figure: Tapir architecture</figcaption>
-</figure>
+![Tapir architecture](images/tapir_architecture.png)
 
 The lower part of the figure shows the per-frame **per-frame initialization**. It focuses on finding potential matches for a given query point in each new frame of the video. This step is designed to be robust to the challenges of deformable object tracking. The key idea is to use a matching network (CNN) that compares the query point's features with the features of every other pixel in the target frame. This step outputs three initial values:
 
@@ -59,17 +56,14 @@ The lower part of the figure shows the per-frame **per-frame initialization**. I
 
 In the second stage, the **iterative refinement**, which can be seen on the upper part of the figure, the above mentioned initial guesses are improved. For each potential position found during the initialization phase, the model defines a local neighborhood window around it. This window acts as a search area for refining the point's exact location. The refinement itself is achieved by comparing the visual features within this neighborhood to the features of the original query point. This comparison generates score maps indicate the similarity between the query point's features and every pixel within the neighborhood window. The highest-scoring pixel in this map represents the most probable refined position for the tracked point in that specific frame. This process is executed iteratively, allowing the model to correct small errors and ensure that the final trajectory is smooth and consistent over time.
 
-#### Pros and Cons 
+#### Pros and Cons
 **TODO Leonie**
 
 ### CoTracker
 
 CoTracker is a paper that introduces another approach to point tracking in 2D videos. The core idea is that instead of tracking each point independently, it is more effective to track many points jointly, taking into account their dependencies and correlations. In the figure below the architecture is shown.
 
-<figure style="text-align: center;">
-  <img src="cotracker_architecture.png" alt="CoTracker architecture" style="width: 70%;">
-  <figcaption>Figure: CoTracker architecture</figcaption>
-</figure>
+![CoTracker architecture](images/cotracker_architecture.png)
 
 Unlike TAPIR that treats each point's trajectory as an independent problem, CoTracker uses a Transformer-based network to model the relationships and dependencies between multiple points simultaneously. The heart of this system is a powerful attention mechanism that enables the network to exchange information between different tracks and across various time steps within a given window of frames. This ability to collectively reason about the motion of multiple points makes CoTracker exceptionally robust. Furthermore, CoTracker is an online algorithm, meaning it can process video frames in real-time. To handle very long videos, it uses a sliding window approach. To achieve this, the model is trained in an unrolled fashion, like a recurrent neural network. The predictions from one window are used to initialize the tracks for the next overlapping window. This allows the model to maintain track consistency and accuracy over long durations.
 
@@ -79,16 +73,13 @@ The output of CoTracker is:
 - occlusion probability
 
 #### Pros and Cons
-By jointly tracking many points with a Transformer, CoTracker exploits inter-point correlations, which improves robustness to occlusions and even when points leave the field of view; it also scales to tens of thousands of points on a single GPU. Its main drawbacks are sensitivity to domain gaps—trained largely on synthetic data, it can mis-handle reflections/shadows—and, by design, joint attention over many points entails higher compute/memory than independent per-point trackers. 
+By jointly tracking many points with a Transformer, CoTracker exploits inter-point correlations, which improves robustness to occlusions and even when points leave the field of view; it also scales to tens of thousands of points on a single GPU. Its main drawbacks are sensitivity to domain gaps—trained largely on synthetic data, it can mis-handle reflections/shadows—and, by design, joint attention over many points entails higher compute/memory than independent per-point trackers.
 
 ### SpatialTracker
 
 SpatialTracker is a method that uses the CoTracker approach and extends its 2D point tracking to the 3D domain. As input data it uses either 2D videos (RGB) or videos with depth information (RGBD). The architecture can be found below.
 
-<figure style="text-align: center;">
-  <img src="spatracker_architecture.png" alt="SpatialTracker architecture" style="width: 70%;">
-  <figcaption>Figure: SpatialTracker architecture</figcaption>
-</figure>
+![SpatialTracker architecture](images/spatracker_architecture.png)
 
 SpatialTracker begins by estimating a depth map for each video frame and extracting dense image features, which are used to lift 2D pixels into 3D space to form a point cloud, see (a). As the monocular depth estimator (MDE) [ZoeDepth](https://arxiv.org/pdf/2302.12288) is used. These 3D points are then projected onto three orthogonal planes to create a compact triplane feature representation that enables efficient feature retrieval (b). An iterative transformer network refines the 3D trajectories of query points across short temporal windows, using extracted features from the triplanes as input (c). As a last step, the model learns a rigidity embedding that groups pixels with similar rigid motion. An As-Rigid-As-Possible (ARAP) constraint is then applied. The ARAP constraint enforces that 3D distances between points with similar rigidity embeddings remain constant over time.
 
@@ -110,17 +101,13 @@ As a result of the SpatialTracker providing the best tracking performance (as it
 
 To make SpatialTracker operate reliably on long and/or high-resolution sequences, we extended the original `demo.py` into a chunked online variant (`chunked_demo.py`). Instead of processing the entire clip at once, the video is split into temporal chunks of length `--chunk_size`. For each chunk we prepend a small overlap equal to half of the model’s sequence length (`--s_length_model / 2`). The model is run on *overlap + chunk*, but only the predictions belonging to the non-overlap part are retained. This keeps peak memory usage approximately constant while preserving sufficient temporal context at chunk boundaries.
 
-<figure style="text-align: center;">
-  <img src="sliding_window.png" alt="Online sliding-window processing" style="width: 70%;">
-  <figcaption>Figure: Online sliding-window processing</figcaption>
-</figure>
+![Online sliding-window processing](images/sliding_window.png)
 
-
-**Initialisation** 
+**Initialisation**
 
 In the first processed segment, query points are initialised on a regular grid restricted to an optional segmentation mask (`--grid_size`, `--mask_name`). For subsequent segments we do not re-sample; instead, the last predicted positions from the previous segment are used as the queries at the new segment start. In practice this yields stable identities and avoids repeated mask processing. If no valid points are available (e.g., prolonged occlusion), the pipeline proceeds with empty/dense queries until tracks re-emerge.
 
-**Depth handling** 
+**Depth handling**
 
 The script supports both monocular and RGB-D inputs. By default, monocular depth is computed on demand for the frames inside each model call. When `--rgbd` is set, per-frame depth maps (pre-aligned to the RGB preprocessing) are injected directly, bypassing the MDE. This path is used for our ToF-based comparisons.
 
@@ -156,10 +143,7 @@ This section deals with depth estimation models of the SpatialTracker. To choose
 
 By default the ZoeDepth estimator is used. The architecture is shown below.
 
-<figure style="text-align: center;">
-  <img src="zoe_architecture.png" alt="ZoeDepth architecture" style="width: 100%;">
-  <figcaption>Figure: ZoeDepth architecture</figcaption>
-</figure>
+![ZoeDepth architecture](images/zoe_architecture.png)
 
 ZeoDepth consists of two stages. First, the model is extensively pre-trained on a vast amount of data to understand relative depth, learning which objects in a scene are closer or farther from each other without worrying about specific units of measurement. Second, the model is then fine-tuned on smaller datasets that contain ground truth metric depth (exact distances in meters). Instead of simply learning a single, precise value, ZoeDepth uses a unique **metric bins module** that estimates a range of possible depth values for each pixel. In the end, ZoeDepth outputs metric depth maps.
 
@@ -167,10 +151,7 @@ For our work we extended the SpatialTracker by another depth estimator. We were 
 
 Video Depth Anything is build upon the strengths of Depth Anything to handle long-duration video sequences with high quality and temporal consistency. The authors introduce a lightweight **spatiotemporal head** on top of the Depth Anything V2 encoder that allows the network to share information across consecutive frames. Instead of relying on optical flow or camera pose (absolute depth values), they introduce a simple temporal consistency loss that encourages smooth changes in depth across frames. For long videos, the method processes clips segment by segment. The figure below illustrates the processing pipeline.
 
-<figure style="text-align: center;">
-  <img src="videoDepthAny_architecture.png" alt="Video Depth Anything architecture" style="width: 100%;">
-  <figcaption>Figure: Video Depth Anything architecture</figcaption>
-</figure>
+![Video Depth Anything architecture](images/videoDepthAny_architecture.png)
 
 ### Segmentation (Segment anything)
 
@@ -202,10 +183,7 @@ To be able to evaluate our implementation in the next section, we need a data se
 
 To obtain reliable ground truth depth information for evaluating the tracking performance, depth images were recorded using a Time-of-Flight (ToF) camera. In our case the Femto Bolt from Orbbec was used, see below.
 
-<figure style="text-align: center;">
-  <img src="femto_bolt.jpg" alt="Femto Bolt" style="width: 50%;">
-  <figcaption>Figure: Femto Bolt depth camera</figcaption>
-</figure>
+![Femto Bolt depth camera](images/femto_bolt.jpg)
 
 As the ToF camera outputs only individual frames, both the color stream and the depth stream had to be synchronized and merged to obtain a temporally continuous RGB-D video. This preprocessing is done by a python script (`preprocessing.py`).
 The camera uses an IR-sensor to generate the depth images which can be read out as a .raw file which is then converted in a NumPy array format (.npy) to ensure efficient loading and processing. Additionally, the frames of the video stream are concatenated to obtain a .mp4 video.

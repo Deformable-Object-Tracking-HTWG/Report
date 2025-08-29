@@ -49,19 +49,11 @@ The evaluation results are presented as clear plots, enabling direct inspection 
 
 With this approach the tracking efficiency in the 2D space is evaluated. For this a short introduction into ArUco markers, as shown in the figure below, is needed. ArUco markers are binary square markers widely used in computer vision for camera pose estimation and object localization. Each marker consists of a unique black-and-white pattern which ensures robust detection under varying lighting conditions. By identifying the specific ID encoded in the marker’s pattern, computer vision algorithms can distinguish between different markers in a scene. In our tracking application, the detection of the position of the ArUco markers establish a ground truth trajectory which can then be used to compare against the real trajectory from the SpatialTracker.
 
-<figure style="text-align: center;">
-  <img src="aurcoMarker_id0.png" alt="Aruco marker id 0" style="width:30%;">
-  <img src="aurcoMarker_id1.png" alt="Aruco marker id 1" style="width:29.75%;">
-  <figcaption>Figure: 5x5 ArUco markers
-
-Left: ID 0; Right: ID 1</figcaption></figure>
+![5x5 ArUco markers](images/aurcoMarker.png)
 
 The figure below presents a schematic overview of the approach for one single frame. This setup is for demonstration purposes only and does not represent an actual experiment.
 
-<figure style="text-align: center;">
-  <img src="exampleExperiment_aruco.jpg" alt="Example experiment aruco" style="width: 80%;">
-  <figcaption>Figure: Schematic 2D evaluation with ArUco markers</figcaption>
-</figure>
+![Schematic 2D evaluation with ArUco markers](images/exampleExperiment_aruco.jpg)
 
 The experimental setup involved recording three video sequences, each the two ArUco markers shown above in a size of 4cm x 4cm attached to a resistance band which is recorded approximately from a distance of 1,5 meters. The setup includes three levels of difficulty in handling the resistance band:
 
@@ -127,9 +119,7 @@ At 720p, the runtime for the same 30-second videos increases to 424–331 second
 This shows that 720p consistently takes about 5–10% longer than 360p, regardless of grid size.
 The increase in execution time is due to higher computational requirements at higher resolution, even though GPU utilization is already saturated.
 
-<figure style="text-align: center;">
-  <img src="Execution.PNG" alt="Example experiment aruco" style="width: 40%;">
-</figure>
+![](images/Execution.PNG)
 
 #### 2. GPU Utilization and Memory
 GPU utilization remains very high, averaging between 70% and 83%, and regularly peaking at 100%.
@@ -144,9 +134,7 @@ Average CPU usage remains between 7% and 9%, with peak usage occasionally reachi
 This demonstrates that the CPU is not a limiting factor in the pipeline.
 The workload is dominated by the GPU, and CPU overhead is relatively stable across all configurations.
 
-<figure style="text-align: center;">
-  <img src="ressources.PNG" alt="Example experiment aruco" style="width: 40%;">
-</figure>
+![](images/ressources.PNG)
 
 #### 4. System Memory (RAM)
 System memory usage differs significantly between 360p and 720p.
@@ -160,9 +148,7 @@ Disk input and output activity remains relatively low compared to other resource
 Data written to disk increases with video length, ranging from 35 MB for 5-second runs to about 200 MB for 30-second runs.
 Since both read and write operations remain small compared to modern disk bandwidth, disk I/O is not a performance bottleneck in any of the tested scenarios.
 
-<figure style="text-align: center;">
-  <img src="Table.PNG" alt="Example experiment aruco" style="width: 40%;">
-</figure>
+![](images/Table.PNG)
 
 #### 6. Key Findings
 Execution time at 720p is consistently longer than at 360p, by roughly 5–10%.
