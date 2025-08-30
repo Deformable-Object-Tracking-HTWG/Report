@@ -57,7 +57,7 @@ The lower part of the figure shows the per-frame **per-frame initialization**. I
 In the second stage, the **iterative refinement**, which can be seen on the upper part of the figure, the above mentioned initial guesses are improved. For each potential position found during the initialization phase, the model defines a local neighborhood window around it. This window acts as a search area for refining the point's exact location. The refinement itself is achieved by comparing the visual features within this neighborhood to the features of the original query point. This comparison generates score maps indicate the similarity between the query point's features and every pixel within the neighborhood window. The highest-scoring pixel in this map represents the most probable refined position for the tracked point in that specific frame. This process is executed iteratively, allowing the model to correct small errors and ensure that the final trajectory is smooth and consistent over time.
 
 #### Pros and Cons
-**TODO Leonie**
+Tapir tracks points well. It provides smooth motion tracking that detects even the smallest changes. Only in cases of significant occlusion or excessively fast movements is the point lost. Tapir can also be run in real time. However, a major disadvantage is that only 2D trajectories are estimated and the lifting to 3D is not considered.
 
 ### CoTracker
 
@@ -95,7 +95,7 @@ By lifting pixels to 3D (monocular depth → triplanes) and enforcing a rigidity
 
 ## Adaption and implementation
 
-As a result of the SpatialTracker providing the best tracking performance (as it can be seen in the videos in the GitHub), we only focus on the SpatialTracker in follow-up work. The other models can considered in future research. This section gives an overview of the adaption we made to the already provided code base: [Github SpatialTracker](https://github.com/henry123-boy/SpaTracker).
+As a result of the SpatialTracker providing the best tracking performance (as it can be seen in the videos in the GitHub) and also provides 3D data as output, we only focus on the SpatialTracker in follow-up work. The other models can considered in future research. This section gives an overview of the adaption we made to the already provided code base: [Github SpatialTracker](https://github.com/henry123-boy/SpaTracker).
 
 ### Sliding window approach (online version)
 
@@ -153,11 +153,47 @@ Video Depth Anything is build upon the strengths of Depth Anything to handle lon
 
 ![Video Depth Anything architecture](images/videoDepthAny_architecture.png)
 
-### Segmentation (Segment anything)
+### Mask Selection with Segment Anything and CLIP
 
-Leonie?
+To determine the initial positions of the tracking points, we generate masks that detect and highlight the sports equipment. For implementation, Meta AI's SegmentAnything Model (SAM) [[Github SAM](https://github.com/facebookresearch/segment-anything)] is used to generate segments, and then Clip ([CLIP paper](https://arxiv.org/pdf/2103.00020)) is used to select the most suitable segment for mask creation.
 
-**sam pipeline ins main file**
+
+**Context**
+
+![SAM Components](images/samComponents.png)
+
+The Segment Anything Model is a model for creating segments. SAM takes an image as input, optionally with prompts such as points, boxes, or masks. The image is processed by an image encoder to extract feature embeddings, which are then combined with the prompt embeddings. A mask decoder then predicts the pixel-precise masks from the combined embeddings. The whole thing was pre-trained on a dataset with over 11 million images, so that the model can now also create a mask for unknown objects (zero-shot generalization). The masks are output as well as a score that indicates the confidence. Text prompts are planned for use as prompts, but are not yet available. We therefore decided not to use prompts, so that segments are placed over the entire frame.
+
+
+We then use CLIP (Contrastive Language-Image Pretraining) to select the most semantically appropriate mask. To do this, we selected reference images of sports equipment and used CLIP to obtain an embedding vectors for each reference image, representing their visual features. The cosine-based similarity is calculated for each segment and reference image embedding.  The mask with the highest similarity value is then selected as the result:
+
+```py
+clip_model, preprocess = clip.load("ViT-B/32", device=device)
+for i, mask_data in enumerate(masks):
+            seg_mask = mask_data["segmentation"]
+            seg_embed = encode_image_clip(clip_model, preprocess, seg_mask, device)
+            best_score = max(torch.nn.functional.cosine_similarity(seg_embed, ref_embed).item()
+                     for ref_embed, _ in ref_embeds)
+```
+
+
+**Usage**
+
+Parameters to be selected as input:
+
+  `--video-path`: The path to the video.
+  `--reference-images`: Folders containing reference images of objects to be detected.
+  `--use-center-priority`: If set, the segment is selected based on its position (otherwise based on its shape). Priority is given to the most central location.
+
+The program is started and a mask for the segment with the best score is selected and displayed. You can then interactively decide to select the mask with the next worst score, and so on. This allows you to select the appropriate mask even in cases of ambiguity.
+
+![All detected segments with SAM](images/segmentation_segments.png)
+![Resulting mask](images/segmentation_mask.png)
+
+**Difficulties/Evaluation**
+
+We chose a gym ball, a sponge, and a softball as reference images. These objects are detected correctly. There are difficulties in detecting the resistance band, as its shape in the first frame is ambiguous and not very distinctive. As a result, other objects such as the door handle and those with small rectangular shapes are often detected incorrectly. We therefore implemented an approach that selects the segment with the smallest distance from the center.
+
 
 ## Data generation
 
