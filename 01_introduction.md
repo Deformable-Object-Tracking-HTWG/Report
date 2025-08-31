@@ -8,7 +8,7 @@ Accurate tracking of deformable objects has numerous applications, ranging from 
 Recent advances in machine learning, particularly Deep Neural Networks, have demonstrated strong potential for capturing the complex dynamics of non-rigid motion.
 However, achieving high tracking accuracy in dynamic and unconstrained scenarios remains an open research challenge.
 
-The goal of this project is to research and develop a system for tracking deformable objects, specifically sports equipment like resistance bands and gymnastic balls.
+The goal of this project is to research and develop a system for tracking deformable objects, specifically sports equipment like resistance bands and gymnastics balls.
 The goal is to support physical therapists and their patients in their exercise execution with an automated, AI-driven solution.
 
 Therefore, possible approaches are discussed in chapter 2.

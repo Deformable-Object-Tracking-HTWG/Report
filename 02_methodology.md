@@ -17,7 +17,7 @@ Five papers were investigated which dealt with tracking non-rigid objects:
 The task was to analyze whether one of the papers provides a useful approach for our task.
 Therefore, let us first consider the goals for this project:
 
-1. Target objects of the tracking algorithm are resistance bands, gymnastic balls and smaller soft balls.
+1. Target objects of the tracking algorithm are resistance bands, gymnastics balls and smaller soft balls.
 2. The work is motivated by the need to support physical therapy patients through the monitoring and assessment of correct exercise execution.
 3. Most of the time one of the above mentioned objects is present in the frame. We focus more on the quality of tracking than on several objects.
 4. Runtime of the approach is initially secondary.
@@ -28,7 +28,7 @@ So let us have a short look on the first four papers.
 Paper 1 by Huang et al. focuses on tracking multiple deformable objects in egocentric videos where the camera is mounted on a person.
 The method relies on template matching with learned features to track objects.
 This approach is problematic for tracking objects like resistance bands because they undergo significant and often unpredictable deformations, including self-occlusions and changes in topology (e.g. twisting).
-This approach cannot handle such extreme changes as the movement of resistance bands and gymnastic ball is too complex.
+This approach cannot handle such extreme changes as the movement of resistance bands and gymnastics ball is too complex.
 
 Zhang et al.'s work (Paper 2) addresses self-supervised learning of implicit shape representations for deformable objects.
 The method is designed for learning a 3D representation from multiple views or a canonical pose.
@@ -305,7 +305,7 @@ The dataset covers a range of objects, resolutions, and video lengths:
 
 - Objects
   - Resistance band
-  - Gymnastic ball
+  - Gymnastics ball
   - Soft ball
   - Sponge
 

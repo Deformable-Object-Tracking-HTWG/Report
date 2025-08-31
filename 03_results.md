@@ -1,12 +1,15 @@
 # 3. Evaluation
 
-ToDo
+This chapter presents a systematic evaluation of the SpatialTracker.
+The assessment focuses on three key aspects:
 
-In this chapter we describe our evaluation process.
-All the metrics used in the three papers of TAPIR, CoTracker, and SpatialTracker did not fit well for our purpose.
-In the end, we agreed on two metrics, which are described first.
-Afterwards, the results of each metric are discussed.
-In addition, the runtime is evaluated.
+- Runtime performance – measuring resource usage and scalability across different video lengths, resolutions, grid sizes, and input types (RGB vs. RGB-D).
+
+- 2D tracking accuracy – validating tracking precision in image space using ArUco markers as a reference trajectory.
+
+- 3D tracking accuracy – comparing tracker outputs against depth measurements from a ToF camera to assess reconstruction quality in the third dimension.
+
+Together, these experiments provide a comprehensive view of how well the system performs under practical conditions, highlighting both its strengths and its current limitations.
 
 ## 3.1. Runtime evaluation
 
@@ -35,7 +38,7 @@ The results are visualized as plots showing temporal resource usage and comparis
 
 ![Execution time on RGB videos](./images/03_eval/performace/execution_time.PNG)
 
-![GPU and grapics memory utilization](./images/03_eval/performace/gpu_usage.png)
+![GPU and graphics memory utilization](./images/03_eval/performace/gpu_usage.png)
 
 ![Resource utilization on RGB videos](./images/03_eval/performace/ressources.PNG)
 
@@ -63,64 +66,36 @@ Importantly, the relative overhead of RGB-D compared to RGB remained consistent 
 - CPU usage remains moderate and stable, while disk I/O is negligible.
 - RGB-D adds predictable overhead (10–20% more runtime, ~200–500 MB extra memory, slightly higher GPU and disk usage).
 
-## 2D tracking efficiency
-With this approach the tracking efficiency in the 2D space is evaluated. For this a short introduction into ArUco markers, as shown in the figure below, is needed. ArUco markers are binary square markers widely used in computer vision for camera pose estimation and object localization. Each marker consists of a unique black-and-white pattern which ensures robust detection under varying lighting conditions. By identifying the specific ID encoded in the marker’s pattern, computer vision algorithms can distinguish between different markers in a scene. In our tracking application, the detection of the position of the ArUco markers establish a ground truth trajectory which can then be used to compare against the real trajectory from the SpatialTracker.
+## 3.2 2D tracking efficiency
+
+### 3.2.1 Experimental Setup
+
+With this approach the tracking efficiency in the 2D space is evaluated. Therefore, a short introduction into ArUco markers, as shown in Figure 16, is needed. 
+ArUco markers are binary square markers widely used in computer vision for camera pose estimation and object localization. 
+Each marker consists of a unique black-and-white pattern which ensures robust detection under varying lighting conditions. 
+By identifying the specific ID encoded in the marker’s pattern, computer vision algorithms can distinguish between different markers in a scene. In our tracking application, the detection of the position of the ArUco markers establish a ground truth trajectory which can then be used to compare against the real trajectory from the SpatialTracker.
 
 ![5x5 ArUco markers](images/03_eval/2d_rerformnce/aurcoMarker.png)
 
-The figure below presents a schematic overview of the approach for one single frame. This setup is for demonstration purposes only and does not represent an actual experiment.
+Figure 17 presents a schematic overview of the approach for one single frame. This setup is for demonstration purposes only and does not represent an actual experiment.
 
 ![Schematic 2D evaluation with ArUco markers](images/03_eval/2d_rerformnce/exampleExperiment_aruco.jpg)
 
-The experimental setup involved recording three video sequences, each the two ArUco markers shown above in a size of 4cm x 4cm attached to a resistance band which is recorded approximately from a distance of 1,5 meters. The setup includes three levels of difficulty in handling the resistance band:
+The experimental setup involved recording three video sequences. In each two ArUco markers, each measuring 4 cm × 4 cm, are attached to a resistance band. The setup is recorded from a distance of approximately 1.5 meters. 
 
-1. Movement only – the band is simply moved without deformation.
+The setup includes three levels of difficulty in handling the resistance band:
+
+1. Movement only – the band is simply moved without deformation. The middle of the band remains largely static, while the outer end moves in a circular motion.
 2. With stretching – the band is actively stretched, introducing shape changes.
-3. With occlusion – the ArUco markers are fully occluded during motion.  The arm is stretching so that the other side of the Theraband is visible and the markings are completely covered for 1 second.
+3. With occlusion – the ArUco markers are fully occluded during motion.  The arm is stretching so that the other side of the Theraband is visible and the markings are completely covered for one second.
 
-Each video was first processed using a Python script (`arucoDetection.py`) which detects the ArUco markers in every frame. For each detected marker, the pixel coordinates of its midpoint were calculated and stored as a NumPy array file (.npy) for subsequent analysis. In above figure these are the blue points.
+Each video was first processed using a Python script (`arucoDetection.py`) which detects the ArUco markers in every frame. For each detected marker, the pixel coordinates of its midpoint were calculated and stored as a NumPy array file (.npy) for subsequent analysis. In Figure 17 these are the blue points.
 
 In the next stage, the same video was fed into the SpatialTracker. The points selected for tracking were the midpoints of the ArUco markers in the first frame of the video. SpatialTracker then computes the corresponding 3D trajectories of the points over time which were exported in JSON format for further evaluation. In the schematic these are represented by the red circles.
 
-In the python script `evaluateTracking.py`, both stored files are loaded. The Euclidean distance between the pixel coordinates obtained from the SpatialTracker and those from the ArUco marker detection is then computed for each frame. The tracking evaluation produces several quantitative metrics, namely the maximum error, the root mean square error (RMSE), and the standard deviation of the errors. A larger distance indicates poorer tracking performance, whereas a smaller distance corresponds to better accuracy.
+In a final step, both stored files are loaded. The Euclidean distance between the pixel coordinates obtained from the SpatialTracker and those from the ArUco marker detection is then computed for each frame. The error is only calculated if the point is recognized as visible in both trajectories. The tracking evaluation produces several quantitative metrics, namely the maximum error, the Root Mean Square Error (RMSE), and the standard deviation of the errors. A larger distance indicates poorer tracking performance, whereas a smaller distance corresponds to better accuracy.
 
-
-## Comparison between ToF ground truth and tracker
-
-We implemented an end-to-end pipeline (`eval_pipeline.py`) to compare SpatialTracker outputs against ToF depth frames. Given a clip slug, the pipeline downloads and re-encodes the RGB video, derives a first-frame object mask (from the project’s segmentation), runs the chunked online variant of SpatialTracker, fetches the corresponding ToF `.npy` frames, performs a depth-aware analysis, and generates a ToF overlay video with track visualization.
-
-### Coordinate mapping (processed → ToF)
-
-Let $(x\_p,y\_p)$ be tracker coordinates at the processed resolution $(W\_{\text{proc}},H\_{\text{proc}})$, and $(W\_{\text{tof}},H\_{\text{tof}})$ the ToF frame size. We map to ToF pixel indices by
-
-$$
-s_x=\frac{W_{\text{tof}}}{W_{\text{proc}}},\quad s_y=\frac{H_{\text{tof}}}{H_{\text{proc}}},\qquad
-(x_{\text{tof}},y_{\text{tof}})=\big(\,\mathrm{round}(s_x\,x_p),\;\mathrm{round}(s_y\,y_p)\big).
-$$
-
-#### Mask warp (geometric prior)
-
-The first-frame binary mask is used only as a **geometric prior**. A homography $H$ is estimated from points that started inside the mask and are visible at $t=0$ and $t$:
-
-$$
-\begin{bmatrix}u\\v\\1\end{bmatrix}\sim
-H\begin{bmatrix}x\\y\\1\end{bmatrix},\qquad
-H=\text{RANSAC}\big(\{(x_0,y_0)\leftrightarrow(x_t,y_t)\}\big).
-$$
-
-The mask is warped to frame $t$ and slightly dilated to tolerate small warp errors. Membership in the warped mask counts as a positive vote.
-
-#### Local ToF depth and object depth band
-
-For a projected point $(x\_{\text{tof}},y\_{\text{tof}})$ we take a **robust local depth** as the median in a small window, ignoring zeros (no return).
-
-To decide whether a tracked point is consistent with the ToF signal, we maintain an **object depth band** per frame. The band is estimated from ToF samples and smoothed over time using an exponential moving average. In the overlay path, depths are sampled inside the warped mask; in the metrics path, samples are taken at the current visible track locations (mask-agnostic). The band half-width uses the larger of a fixed minimum tolerance (≈6 cm) and a term proportional to the median absolute deviation (≈2.5×MAD). A point is accepted by depth if its local ToF median lies inside the current band.
-
-#### Decision rule and outputs
-
-Geometry and depth are combined: a point counts as correct if it is **inside the warped mask** or **passes the depth test**. A short majority vote over recent frames reduces flicker from transient sensor dropouts. In the overlay, accepted samples are drawn **green**, rejected **red**, and optionally **yellow** if the tracker reports invisibility while ToF has no local return.
-
-### 2D tracking efficiency
+### 3.2.2 Results
 
 The following table summarizes the results for all three videos. Overall, we are looking at videos with an image size of 832x464 pixels:
 
@@ -134,43 +109,90 @@ The following table summarizes the results for all three videos. Overall, we are
 |                     | 1         | 41.59         | 34.04                    | 88.28                    |
 
 
-There is a clear difference between the values of the two Aruko markers. Marker 0 is located in the middle of the band and therefore performs less stretching. Marker 1, on the other hand, is located at the edge.
+There is a clear difference between the values of the two Aruco markers. Marker 0 is located in the middle of the band and therefore performs less moving and stretching. Marker 1, on the other hand, is located at the edge.
 
-The movement and stretching achieve very good values with a maximum deviation of 12 pixels. The tracking positions are therefore consistently close to the marker. This is also evident from the low standard deviations.
+The movement and stretching video achieve very good results with a maximum deviation of 12 pixels. The tracking positions are therefore consistently close to the marker. This is also evident from the low standard deviations (see Figure 18 and 19).
 
 ![Tracking errors during stretching](images/03_eval/2d_rerformnce/stretching_tracking_fehler.png)
 
 ![Tracking error during movement](images/03_eval/2d_rerformnce/moving_tracking_fehler.png)
 
 
-There are problems with occlusion. The maximum deviation is large and persists throughout large parts of the video. The following figure shows the progression of the deviations. When the markers are occluded, the position information is lost. The tracker then assumes incorrect position values for both markers. When the marker becomes visible again, the tracker only recognizes marker 0 and the correct trajectories are determined there again.
+There are problems with occlusion. The maximum deviation is large and persists throughout large parts of the video. Figure 20 shows the progression of the deviations. When the markers are occluded, the position information is lost. The tracker then assumes incorrect position values for both markers. When the marker becomes visible again, the tracker recognizes marker 0 and the correct trajectories are resumed from there again.
 
 ![Error deviation during occlusion](images/03_eval/2d_rerformnce/occlusion_tracking_fehler.png)
 
-The detection of occlusion is faulty. Occlusion is detected for a short period of time, but then another visible point is tracked (see following figure).
+The detection of occlusion is error-prone. Occlusion is detected for a short period of time, but then another visible point is tracked (see Figure 21 and 22).
 
 ![Comparison of visibility with Aruco Id 0](images/03_eval/2d_rerformnce/occlusion_tracking_abdeckung_id_0.png)
 
 ![Comparison of visibility with Aruco Id 1](images/03_eval/2d_rerformnce/occlusion_tracking_abdeckung_id_1.png)
 
-Overall, it can be said that movements and changes in shape are detected very well. There seem to be difficulties with occlusions. It should be noted that we are only using one video sequence as a reference. With this occlusion lasting approx. 100 frames, the Spatial Tracker does not show good results.  
+Overall, it can be said that movements and changes in shape are detected very well. There seem to be difficulties with occlusions. It should be noted that we are only using one video sequence as a reference. With this occlusion lasting approx. 100 frames, the Spatial Tracker does not show good results. 
 
-### Comparison between ToF ground truth and tracker
+## 3.3 Comparison between ToF ground truth and tracker
 
-The comparison between the ground truth provided by the ToF-camera and the results produced by our SpatialTracker shows that the result quality depends largely on the type of object being tracked.
-While simpler objects such as the "exercise ball" and the "blackboard eraser" were tracked consistently over the duration of the video, tracking the "Theraband" proved more challenging.
-Adding markings to the band improved the tracking performance to some extent, but not in a consistent manner — the results still varied considerably.
-This may be due to the nature of the Theraband, which is highly unstable in its dimensions and can be stretched into a line or compressed into a ball.
-This appears to be a complex issue that merits further investigation.
+We implemented an end-to-end pipeline to compare SpatialTracker outputs against ToF depth frames. 
+Given a clip slug, the pipeline downloads and re-encodes the RGB video, derives a first-frame object mask (from the project’s segmentation), runs the chunked variant of SpatialTracker, fetches the corresponding ToF `.npy` frames, performs a depth-aware analysis, and generates a ToF overlay video with track visualization.
+
+### 3.3.1 Coordinate mapping (processed → ToF)
+
+Let $(x_p,y_p)$ be tracker coordinates at the processed resolution $(W_{proc},H_{proc})$, and $(W_{tof},H_{tof})$ the ToF frame size. We map to ToF pixel indices by
+
+$$
+s_x=\frac{W_{\text{tof}}}{W_{\text{proc}}},\quad s_y=\frac{H_{\text{tof}}}{H_{\text{proc}}},\qquad
+(x_{\text{tof}},y_{\text{tof}})=\big(\,\mathrm{round}(s_x\,x_p),\;\mathrm{round}(s_y\,y_p)\big).
+$$
+
+#### Mask warp (geometric prior)
+
+The first-frame binary mask is used only as a **geometric prior**. 
+A homography $H$ is estimated from points that started inside the mask and are visible at $t=0$ and $t$:
+
+$$
+\begin{bmatrix}u\\v\\1\end{bmatrix}\sim
+H\begin{bmatrix}x\\y\\1\end{bmatrix},\qquad
+H=\text{RANSAC}\big(\{(x_0,y_0)\leftrightarrow(x_t,y_t)\}\big).
+$$
+
+The mask is warped to frame $t$ and slightly dilated to tolerate small warp errors. 
+Membership in the warped mask counts as a positive vote.
+
+#### Local ToF depth and object depth band
+
+For a projected point $(x_{tof},y_{tof})$ we take a **robust local depth** as the median in a small window, ignoring zeros.
+
+To decide whether a tracked point is consistent with the ToF signal, we maintain an **object depth band** per frame. 
+The band is estimated from ToF samples and smoothed over time using an exponential moving average. 
+In the overlay path, depths are sampled inside the warped mask.
+In the metrics path, samples are taken at the current visible track locations (mask-agnostic). 
+TODO: half-width?
+The band half-width uses the larger of a fixed minimum tolerance $≈6 cm$ and a term proportional to the Median Absolute Deviation $≈2.5×MAD$. 
+A point is accepted by depth if its local ToF median lies inside the current band.
+
+#### Decision rule and outputs
+
+Geometry and depth are combined: a point counts as correct if it is **inside the warped mask** or **passes the depth test**. 
+TODO: majority vote?
+A short majority vote over recent frames reduces flicker from transient sensor dropouts. 
+In the overlay, accepted samples are drawn **green**, rejected **red**, and optionally **yellow** if the tracker reports invisibility while ToF has no local return.
+
+### 3.3.2 3D tracking efficiency
+
+The comparison between the ground truth provided by the ToF-camera and the results produced by the SpatialTracker shows that the result quality depends largely on the type of object being tracked.
+While simpler objects such as the **gymnastics ball** and the **sponge** were tracked consistently over the duration of the video, tracking the **resistance band** proved more challenging.
+Adding markings to the band improved the tracking performance to some extent, but not in a consistent manner — the results still varied considerably (see Figure 23).
+This may be due to the nature of the resistance band, which is highly unstable in its dimensions and can be stretched into a line or compressed into a ball.
+This appears to be a complex issue that merits further investigation. 
 
 ![Average accuracy per equipment type and clip duration](images/03_eval/3d_performance/3d_accuracy_barplot.png)
 
-In contrast, the tracking performance over time remained fairly consistent. The tracking quality in the third dimension only decreased slightly.
+In contrast, the tracking performance over time remained fairly consistent. The tracking quality in the third dimension only decreased slightly (see Figure 24).
 This was not necessarily what we expected.
 
 ![Average accuracy over time and per equipment type](images/03_eval/3d_performance/3d_accuracy_over_time.png)
 
 Again, the plot above shows that tracking accuracy depends primarily on the type of workout equipment rather than on the duration.
 
-Another point to note in the process is that it only worked reliably with good initial masks. For automated testing, some automatically generated masks — especially those for the Theraband — were of insufficient quality and had to be replaced manually. This was done to focus on the quality of tracking rather than on the inline masking.
+Another point to note in the process is that it only worked reliably with good initial masks. For automated testing, some automatically generated masks — especially those for the resistance band — were of insufficient quality and had to be replaced manually. This was done to focus on the quality of tracking rather than on the inline masking.
 
