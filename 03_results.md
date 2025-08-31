@@ -61,13 +61,13 @@ The experimental setup involved recording three video sequences, each the two Ar
 
 2. With stretching – the band is actively stretched, introducing shape changes.
 
-3. With occlusion – the ArUco markers are fully occluded during motion.
+3. With occlusion – the ArUco markers are fully occluded during motion.  The arm is stretching so that the other side of the Theraband is visible and the markings are completely covered for 1 second.
 
 Each video was first processed using a Python script (`arucoDetection.py`) which detects the ArUco markers in every frame. For each detected marker, the pixel coordinates of its midpoint were calculated and stored as a NumPy array file (.npy) for subsequent analysis. In above figure these are the blue points.
 
 In the next stage, the same video was fed into the SpatialTracker. The points selected for tracking were the midpoints of the ArUco markers in the first frame of the video. SpatialTracker then computes the corresponding 3D trajectories of the points over time which were exported in JSON format for further evaluation. In the schematic these are represented by the red circles.
 
-In the python script `evaluateTracking.py`, both stored files are loaded. The Euclidean distance between the pixel coordinates obtained from the SpatialTracker and those from the ArUco marker detection is then computed for each frame. The tracking evaluation produces several quantitative metrics, namely the mean error, the root mean square error (RMSE), and the standard deviation. A larger distance indicates poorer tracking performance, whereas a smaller distance corresponds to better accuracy.
+In the python script `evaluateTracking.py`, both stored files are loaded. The Euclidean distance between the pixel coordinates obtained from the SpatialTracker and those from the ArUco marker detection is then computed for each frame. The tracking evaluation produces several quantitative metrics, namely the maximum error, the root mean square error (RMSE), and the standard deviation of the errors. A larger distance indicates poorer tracking performance, whereas a smaller distance corresponds to better accuracy.
 
 
 ### Comparison between TOF ground truth and tracker
@@ -205,15 +205,38 @@ In practical terms, RGBD processing provides richer information at a stable cost
 
 ### 2D tracking efficiency
 
-Leonie
+The following table summarizes the results for all three videos. Overall, we are looking at videos with an image size of 832x464 pixels:
 
-2 aruco marker
-3 videos
-1: 1 in die mitte, der andere rechts (nur bewegen)
-2: 1 in die mitte, der andere rechts (stretchen)
-3: 1 in die mitte, der andere rechts (verschwindet)
+| Video / Condition   | Marker ID | RMSE (pixels) | Std. deviation (pixels) | Max. deviation (pixels) |
+|---------------------|-----------|---------------|--------------------------|--------------------------|
+| **Movement only**   | 0         | 2.53          | 1.34                     | 7.69                     |
+|                     | 1         | 4.82          | 2.80                     | 10.17                    |
+| **With stretching** | 0         | 2.29          | 1.40                     | 6.24                     |
+|                     | 1         | 6.20          | 3.06                     | 12.08                    |
+| **With occlusion**  | 0         | 3.87          | 3.39                     | 40.21                    |
+|                     | 1         | 41.59         | 34.04                    | 88.28                    |
 
-nur wenig punkte, man kann nicht auf die gesamtheit schließen
+
+There is a clear difference between the values of the two Aruko markers. Marker 0 is located in the middle of the band and therefore performs less stretching. Marker 1, on the other hand, is located at the edge.
+
+The movement and stretching achieve very good values with a maximum deviation of 12 pixels. The tracking positions are therefore consistently close to the marker. This is also evident from the low standard deviations.
+
+![Tracking errors during stretching](images/stretching_tracking_fehler.png)
+
+![Tracking error during movement](images/moving_tracking_fehler.png)
+
+
+There are problems with occlusion. The maximum deviation is large and persists throughout large parts of the video. The following figure shows the progression of the deviations. When the markers are occluded, the position information is lost. The tracker then assumes incorrect position values for both markers. When the marker becomes visible again, the tracker only recognizes marker 0 and the correct trajectories are determined there again.
+
+![Error deviation during occlusion](images/occlusion_tracking_fehler.png)
+
+The detection of occlusion is faulty. Occlusion is detected for a short period of time, but then another visible point is tracked (see following figure).
+
+![Comparison of visibility with Aruco Id 0](images/occlusion_tracking_abdeckung_id_0.png)
+
+![Comparison of visibility with Aruco Id 1](images/occlusion_tracking_abdeckung_id_1.png)
+
+Overall, it can be said that movements and changes in shape are detected very well. There seem to be difficulties with occlusions. It should be noted that we are only using one video sequence as a reference. With this occlusion lasting approx. 100 frames, the Spatial Tracker does not show good results.  
 
 ### Comparison between TOF ground truth and tracker
 

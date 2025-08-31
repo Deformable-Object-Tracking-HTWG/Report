@@ -44,11 +44,11 @@ As the only option being left over is the SpatialTracker.This is the one we focu
 
 ### TAPIR
 
-TAPIR is a deep neural network model designed for the task of **Tracking Any Point** (TAP). Its main goal is to accurately follow a specific point of interest throughout a 2D video sequence, even if that point is on a deformable object, becomes occluded, or changes its appearance. It works in two steps: per-frame **initialization** and **iterative refinement**. The figure below shows the architecture of TAPIR.
+TAPIR is a deep neural network model designed for the task of **Tracking Any Point** (TAP). Its main goal is to accurately follow a specific point of interest throughout a 2D video sequence, even if that point is on a deformable object, becomes occluded, or changes its appearance. It works in two steps: **per-frame initialization** and **iterative refinement**. The figure below shows the architecture of TAPIR.
 
 ![Tapir architecture](images/tapir_architecture.png)
 
-The lower part of the figure shows the per-frame **per-frame initialization**. It focuses on finding potential matches for a given query point in each new frame of the video. This step is designed to be robust to the challenges of deformable object tracking. The key idea is to use a matching network (CNN) that compares the query point's features with the features of every other pixel in the target frame. This step outputs three initial values:
+The lower part of the figure shows the **per-frame initialization**. It focuses on finding potential matches for a given query point in each new frame of the video. This step is designed to be robust to the challenges of deformable object tracking. The key idea is to use a matching network (CNN) that compares the query point's features with the features of every other pixel in the target frame. This step outputs three initial values:
 
 - initial guess for the trajectory (x, y)
 - probability for occlusion
@@ -155,7 +155,7 @@ Video Depth Anything is build upon the strengths of Depth Anything to handle lon
 
 ### Mask Selection with Segment Anything and CLIP
 
-To determine the initial positions of the tracking points, we generate masks that detect and highlight the sports equipment. For implementation, Meta AI's SegmentAnything Model (SAM) [[Github SAM](https://github.com/facebookresearch/segment-anything)] is used to generate segments, and then Clip ([CLIP paper](https://arxiv.org/pdf/2103.00020)) is used to select the most suitable segment for mask creation.
+To determine the initial positions of the tracking points, we generate masks that detect and highlight the sports equipment. For implementation, Meta AI's SegmentAnything Model (SAM) [[Github SAM](https://github.com/facebookresearch/segment-anything)] is used to generate segments, and then Clip ([Paper CLIP](https://arxiv.org/pdf/2103.00020)) is used to select the most suitable segment for mask creation.
 
 
 **Context**
@@ -172,7 +172,7 @@ clip_model, preprocess = clip.load("ViT-B/32", device=device)
 for i, mask_data in enumerate(masks):
             seg_mask = mask_data["segmentation"]
             seg_embed = encode_image_clip(clip_model, preprocess, seg_mask, device)
-            best_score = max(torch.nn.functional.cosine_similarity(seg_embed, ref_embed).item()
+            score = max(torch.nn.functional.cosine_similarity(seg_embed, ref_embed).item()
                      for ref_embed, _ in ref_embeds)
 ```
 
