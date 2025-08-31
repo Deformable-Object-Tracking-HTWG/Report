@@ -155,7 +155,7 @@ Video Depth Anything is build upon the strengths of Depth Anything to handle lon
 
 ### Mask Selection with Segment Anything and CLIP
 
-To determine the initial positions of the tracking points, we generate masks that detect and highlight the sports equipment. For implementation, Meta AI's SegmentAnything Model (SAM) [[Github SAM](https://github.com/facebookresearch/segment-anything)] is used to generate segments, and then Clip ([Paper CLIP](https://arxiv.org/pdf/2103.00020)) is used to select the most suitable segment for mask creation.
+To determine the initial positions of the tracking points, we generate masks that detect and highlight the sports equipment. For implementation, Meta AI's Segment Anything Model (SAM) [[Github SAM](https://github.com/facebookresearch/segment-anything)] is used to generate segments, and then Clip ([Paper CLIP](https://arxiv.org/pdf/2103.00020)) is used to select the most suitable segment for mask creation.
 
 
 **Context**
