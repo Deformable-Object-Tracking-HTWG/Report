@@ -4,7 +4,7 @@ Deformable object tracking remains a complex yet highly impactful area within co
 
 In the next step, we made several adaptations to the SpatialTracker. To handle longer videos without running into memory limitations, we implemented a sliding window approach. Furthermore, we added another monocular depth estimator called Video Depth Anything and a segmentation pipeline to automatically extract the region of interest. Additionally, we created a video library for testing purposes and used a time-of-flight camera to generate ground-truth depth data.
 
-**TODO: add conclusion of results**
+Overall, our evaluation shows that SpatialTracker can reliably track deformable objects under a range of conditions, but its performance varies strongly by object type. While simple objects such as gym balls and blackboard erasers were tracked consistently, resistance bands posed a significant challenge due to their highly variable shape, often reducing accuracy despite added markings. Runtime experiments revealed that GPU resources are the main bottleneck, with higher resolutions and longer clips increasing processing time and memory requirements, and RGB-D processing adding a predictable overhead of 10–20%. 2D efficiency tests with ArUco markers confirmed good accuracy under movement and stretching, but tracking degraded heavily under occlusion. Comparison with ToF ground truth further emphasized that accuracy depends more on object characteristics than on video length, and that reliable initialization masks are crucial for stable results.
 
 Overall, the project lays a solid foundation for further research and development of automated tools that can support therapists and patients in exercise monitoring.
 

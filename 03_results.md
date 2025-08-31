@@ -105,9 +105,6 @@ To decide whether a tracked point is consistent with the ToF signal, we maintain
 
 Geometry and depth are combined: a point counts as correct if it is **inside the warped mask** or **passes the depth test**. A short majority vote over recent frames reduces flicker from transient sensor dropouts. In the overlay, accepted samples are drawn **green**, rejected **red**, and optionally **yellow** if the tracker reports invisibility while ToF has no local return.
 
-**EVALUATIONSERGEBNISSE Lukas**
-
-
 ## Results
 
 ### Runtime evaluation
@@ -240,4 +237,20 @@ Overall, it can be said that movements and changes in shape are detected very we
 
 ### Comparison between TOF ground truth and tracker
 
-Arian, Lukas?
+The comparison between the ground truth provided by the TOF-camera and the results produced by our SpatialTracker shows that the result quality depends largely on the type of object being tracked.
+While simpler objects such as the "exercise ball" and the "blackboard eraser" were tracked consistently over the duration of the video, tracking the "Theraband" proved more challenging.
+Adding markings to the band improved the tracking performance to some extent, but not in a consistent manner — the results still varied considerably.
+This may be due to the nature of the Theraband, which is highly unstable in its dimensions and can be stretched into a line or compressed into a ball.
+This appears to be a complex issue that merits further investigation.
+
+![Average accuracy per equipment type and clip duration](./images/3d_accuracy_barplot.png)
+
+In contrast, the tracking performance over time remained fairly consistent. The tracking quality in the third dimension only decreased slightly.
+This was not necessarily what we expected.
+
+![Average accuracy over time and per equipment type](./images/3d_accuracy_over_time.png)
+
+Again, the plot above shows that tracking accuracy depends primarily on the type of workout equipment rather than on the duration.
+
+Another point to note in the process is that it only worked reliably with good initial masks. For automated testing, some automatically generated masks — especially those for the Theraband — were of insufficient quality and had to be replaced manually. This was done to focus on the quality of tracking rather than on the inline masking.
+
